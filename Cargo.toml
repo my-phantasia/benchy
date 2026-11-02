@@ -9,3 +9,7 @@ fst = "0.4.7"
 [dev-dependencies]
 criterion = "0.8.2"
 dhat = "0.3.3"
+
+[[bench]]
+name = "algo_comparison_bench"
+harness = false
