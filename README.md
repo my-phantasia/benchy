@@ -1,4 +1,6 @@
-# rust-string-lookup-benchmark
+# benchy
+
+I made this for my Research Methods Semester 5 assignment, the code could use some optimization but i do think its enough.
 
 ## Dataset
 - dataset from: [wikimedia](https://dumps.wikimedia.org/other/pageviews/2026/2026-02/pageviews-20260201-000000.gz)  
