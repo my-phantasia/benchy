@@ -54,14 +54,12 @@ Memory profiling was conducted using [DHAT](https://valgrind.org/docs/manual/dh-
 
 ### Summary
 
-```
 | Metric | HashMap (AHashMap) | Radix Trie (fast_radix_trie) | FST (Vec<u8>) | FST (Mmap) |
 |---|---:|---:|---:|---:|
 | Total Heap Allocated (MB) | ~385.7 MB | ~615.1 MB | ~82.4 MB | 0 B |
 | Peak Heap Memory (MB) | ~385.7 MB | ~111.3 MB | ~82.4 MB | 0 B |
 | Heap Allocation Count | 4,665,817 | 15,928,790 | 1 | 0 |
 | Retained at Exit | ~385.7 MB (100% live) | 0 B (Freed) | 0 B (Freed) | 0 B |
-```
 
 ### Key Findings
 
