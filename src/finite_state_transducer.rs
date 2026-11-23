@@ -1,4 +1,5 @@
 use fst::{Map, MapBuilder};
+use memmap2::Mmap;
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader, BufWriter};
 
@@ -28,5 +29,12 @@ pub fn bake_fst(tsv_path: &str, fst_path: &str) -> Result<(), Box<dyn std::error
 pub fn load_fst(fst_path: &str) -> Result<Map<Vec<u8>>, Box<dyn std::error::Error>> {
     let bytes = fs::read(fst_path)?;
     let map = Map::new(bytes)?;
+    Ok(map)
+}
+
+pub fn load_fst_mmap(fst_path: &str) -> Result<Map<Mmap>, Box<dyn std::error::Error>> {
+    let file = File::open(fst_path)?;
+    let mmap = unsafe { Mmap::map(&file)? };
+    let map = Map::new(mmap)?;
     Ok(map)
 }

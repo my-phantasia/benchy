@@ -5,7 +5,7 @@ use std::fs::File;
 use std::hint::black_box;
 use std::io::{BufRead, BufReader};
 
-use rust_string_lookup_benchmark::finite_state_transducer::{bake_fst, load_fst};
+use rust_string_lookup_benchmark::finite_state_transducer::{bake_fst, load_fst, load_fst_mmap};
 use rust_string_lookup_benchmark::hashmap::load_hashmap;
 use rust_string_lookup_benchmark::trie::load_trie;
 
@@ -36,6 +36,7 @@ fn bench_lookup(c: &mut Criterion) {
 
     bake_fst(tsv_path, fst_path).expect("Failed to bake FST");
     let fst_map = load_fst(fst_path).expect("Failed to load FST");
+    let fst_memmap = load_fst_mmap(fst_path).expect("Failed to memory mapped FST");
     let hash_map = load_hashmap(tsv_path).expect("Failed to load HashMap");
     let trie_map = load_trie(tsv_path).expect("Failed to load Trie");
 
@@ -53,6 +54,15 @@ fn bench_lookup(c: &mut Criterion) {
                 black_box(result);
             }
         })
+    });
+
+    group.bench_function("fst_mmap", |b| {
+        b.iter(|| {
+            for key in &search_keys {
+                let result = fst_memmap.get(black_box(key));
+                black_box(result);
+            }
+        });
     });
 
     group.bench_function("hashmap", |b| {

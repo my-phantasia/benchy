@@ -9,6 +9,7 @@ fast_radix_trie = "1.2.0"
 fst = "0.4.7"
 rand = "0.10.3"
 dhat = "0.3.3"
+memmap2 = "0.9.12"
 
 [dev-dependencies]
 criterion = "0.8.2"
