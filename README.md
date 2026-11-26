@@ -56,14 +56,14 @@ Memory profiling was conducted using [DHAT](https://valgrind.org/docs/manual/dh-
 
 | Metric | HashMap (AHashMap) | Radix Trie (fast_radix_trie) | FST (Vec<u8>) | FST (Mmap) |
 |---|---:|---:|---:|---:|
-| Total Heap Allocated (MB) | ~385.7 MB | ~615.1 MB | ~82.4 MB | 0 B |
-| Peak Heap Memory (MB) | ~385.7 MB | ~111.3 MB | ~82.4 MB | 0 B |
-| Heap Allocation Count | 4,665,817 | 15,928,790 | 1 | 0 |
-| Retained at Exit | ~385.7 MB (100% live) | 0 B (Freed) | 0 B (Freed) | 0 B |
+| Total Heap Allocated (MB) | ~385.7 MB | ~506.3 MB | ~82.4 MB | 0 B |
+| Peak Heap Memory (MB) | ~385.7 MB | ~253.9 MB | ~82.4 MB | 0 B |
+| Heap Allocation Count | 4,665,821 | 11,263,118 | 1 | 0 |
+| Retained at Exit | 88 B (0 B map data) | 0 B (Freed) | 0 B (Freed) | 0 B |
 
 ### Key Findings
 
-* **HashMap (`AHashMap`)**: Retains all data in memory at runtime (~385.7 MB). This consists of **276.8 MB** for the `hashbrown::raw::RawTable` bucket array in a single allocation, plus **108.9 MB** across 4.66M heap allocations for standard `String` keys.
-* **Radix Trie (`fast_radix_trie`)**: Incurs heavy allocation churn during graph/node construction (~615.1 MB total allocated across ~15.9 million individual heap allocations). However, its peak memory remains modest (~111.3 MB), and all memory is completely deallocated when dropped (0 bytes retained at exit).
-* **FST (`Vec<u8>`)**: Loads the serialized state via `std::fs::read` in a single contiguous 82.4 MB (78.6 MiB) heap allocation, which is freed when dropped
-* **FST (`Mmap`)**: Eliminates Rust heap allocations entirely (0 B in DHAT) by memory-mapping the 78.6 MiB FST file directly via the OS virtual memory subsystem. Rather than copying the file into user-space heap memory, the kernel demand-pages blocks through the OS page cache while preserving the same lookup throughput as the heap-backed FST.
+- **HashMap (`AHashMap`)**: Allocates and holds **~385.7 MB** while live—**276.8 MB** for the `hashbrown::raw::RawTable` bucket array in a single allocation, plus **108.9 MB** across 4.66M individual heap allocations for `String` keys. All map and key memory is freed on drop (`0 B` retained at exit, aside from `88 B` in `ahash`'s static `OnceBox` RNG seed cache).
+- **Radix Trie (`fast_radix_trie`)**: Incurs heavy node-splitting churn during tree construction (**~506.3 MB** total across ~11.26 million individual node allocations), settling at **~253.9 MB** of live node memory at peak before deallocating completely on drop (`0 B` retained at exit).
+- **FST (`Vec<u8>`)**: Loads the serialized automaton via `std::fs::read` in a single contiguous **82.4 MB** (`78.6 MiB`) heap allocation, which is freed when dropped.
+- **FST (`Mmap`)**: Eliminates Rust heap allocations entirely (`0 B` in DHAT) by memory-mapping the `78.6 MiB` FST file directly via the OS virtual memory subsystem. Rather than copying the file into user-space heap memory, the kernel demand-pages blocks through the OS page cache while preserving nearly identical lookup throughput to the heap-backed FST.

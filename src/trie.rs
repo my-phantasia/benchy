@@ -15,7 +15,7 @@ pub fn load_trie(tsv_path: &str) -> Result<StringRadixMap<u64>, Box<dyn std::err
         if !trimmed.is_empty() {
             if let Some((key, val_str)) = trimmed.split_once('\t') {
                 let val: u64 = val_str.trim().parse()?;
-                map.insert(key.to_string(), val);
+                map.insert(key, val);
             }
         }
 
