@@ -40,7 +40,7 @@ fn bench_lookup(c: &mut Criterion) {
     let hash_map = load_hashmap(tsv_path).expect("Failed to load HashMap");
     let trie_map = load_trie(tsv_path).expect("Failed to load Trie");
 
-    let sample_size = 10_000;
+    let sample_size = 100_000;
     let search_keys = load_sample_keys(tsv_path, sample_size);
 
     let mut group = c.benchmark_group("string_lookup");

@@ -24,25 +24,25 @@ To ensure consistent results:
 - Turbo Boost was disabled to keep the CPU running within its baseline frequency.
 
 ```sh
-string_lookup/fst       time:   [11.128 ms 11.255 ms 11.391 ms]
-                        thrpt:  [877.91 Kelem/s 888.48 Kelem/s 898.65 Kelem/s]
+string_lookup/fst      time:   [110.75 ms 111.86 ms 113.03 ms]
+                       thrpt:  [884.76 Kelem/s 894.00 Kelem/s 902.91 Kelem/s]
 Found 1 outliers among 100 measurements (1.00%)
   1 (1.00%) high mild
 
-string_lookup/fst_mmap  time:   [11.547 ms 11.601 ms 11.669 ms]
-                        thrpt:  [856.95 Kelem/s 862.01 Kelem/s 866.05 Kelem/s]
+string_lookup/fst_mmap  time:   [117.21 ms 117.77 ms 118.46 ms]
+                        thrpt:  [844.17 Kelem/s 849.09 Kelem/s 853.20 Kelem/s]
 Found 6 outliers among 100 measurements (6.00%)
   4 (4.00%) high mild
   2 (2.00%) high severe
   
-string_lookup/hashmap   time:   [697.88 µs 698.84 µs 700.25 µs]
-                        thrpt:  [14.281 Melem/s 14.309 Melem/s 14.329 Melem/s]
+string_lookup/hashmap   time:   [14.635 ms 14.734 ms 14.846 ms]
+                        thrpt:  [6.7357 Melem/s 6.7869 Melem/s 6.8328 Melem/s]
 Found 11 outliers among 100 measurements (11.00%)
   3 (3.00%) high mild
   8 (8.00%) high severe
 
-string_lookup/trie      time:   [13.485 ms 13.492 ms 13.501 ms]
-                        thrpt:  [740.66 Kelem/s 741.20 Kelem/s 741.58 Kelem/s]
+string_lookup/trie      time:   [135.81 ms 136.38 ms 136.99 ms]
+                        thrpt:  [729.98 Kelem/s 733.26 Kelem/s 736.31 Kelem/s]
 Found 1 outliers among 100 measurements (1.00%)
   1 (1.00%) high severe
 
