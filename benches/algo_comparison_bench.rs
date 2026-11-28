@@ -1,4 +1,5 @@
 use criterion::{Criterion, Throughput, criterion_group, criterion_main};
+use fst::{Automaton, IntoStreamer, Streamer, automaton::Str};
 use rand::rng;
 use rand::seq::SliceRandom;
 use std::fs::File;
@@ -43,11 +44,11 @@ fn bench_lookup(c: &mut Criterion) {
     let sample_size = 100_000;
     let search_keys = load_sample_keys(tsv_path, sample_size);
 
-    let mut group = c.benchmark_group("string_lookup");
+    let mut lookup_group = c.benchmark_group("string_lookup");
 
-    group.throughput(Throughput::Elements(search_keys.len() as u64));
+    lookup_group.throughput(Throughput::Elements(search_keys.len() as u64));
 
-    group.bench_function("fst", |b| {
+    lookup_group.bench_function("fst", |b| {
         b.iter(|| {
             for key in &search_keys {
                 let result = fst_map.get(black_box(key));
@@ -56,7 +57,7 @@ fn bench_lookup(c: &mut Criterion) {
         })
     });
 
-    group.bench_function("fst_mmap", |b| {
+    lookup_group.bench_function("fst_mmap", |b| {
         b.iter(|| {
             for key in &search_keys {
                 let result = fst_memmap.get(black_box(key));
@@ -65,7 +66,7 @@ fn bench_lookup(c: &mut Criterion) {
         });
     });
 
-    group.bench_function("hashmap", |b| {
+    lookup_group.bench_function("hashmap", |b| {
         b.iter(|| {
             for key in &search_keys {
                 let result = hash_map.get(black_box(key));
@@ -74,7 +75,7 @@ fn bench_lookup(c: &mut Criterion) {
         });
     });
 
-    group.bench_function("trie", |b| {
+    lookup_group.bench_function("trie", |b| {
         b.iter(|| {
             for key in &search_keys {
                 let result = trie_map.get(black_box(key));
@@ -83,7 +84,67 @@ fn bench_lookup(c: &mut Criterion) {
         });
     });
 
-    group.finish();
+    lookup_group.finish();
+
+    const MAX_RESULTS: usize = 50;
+
+    let search_prefixes: Vec<&str> = search_keys
+        .iter()
+        .take(1_000)
+        .map(|k| match k.char_indices().nth(4) {
+            Some((idx, _)) => &k[..idx],
+            None => k.as_str(),
+        })
+        .collect();
+
+    let mut prefix_group = c.benchmark_group("string_prefix_lookup");
+    prefix_group.throughput(Throughput::Elements(search_prefixes.len() as u64));
+
+    prefix_group.bench_function("fst_starts_with_top50", |b| {
+        b.iter(|| {
+            for &prefix in &search_prefixes {
+                let matcher = Str::new(black_box(prefix)).starts_with();
+                let mut stream = fst_map.search(matcher).into_stream();
+                let mut count = 0;
+                while let Some((k, v)) = stream.next() {
+                    black_box((k, v));
+                    count += 1;
+                    if count >= MAX_RESULTS {
+                        break;
+                    }
+                }
+            }
+        });
+    });
+
+    prefix_group.bench_function("fst_mmap_starts_with_top50", |b| {
+        b.iter(|| {
+            for &prefix in &search_prefixes {
+                let matcher = Str::new(black_box(prefix)).starts_with();
+                let mut stream = fst_memmap.search(matcher).into_stream();
+                let mut count = 0;
+                while let Some((k, v)) = stream.next() {
+                    black_box((k, v));
+                    count += 1;
+                    if count >= MAX_RESULTS {
+                        break;
+                    }
+                }
+            }
+        });
+    });
+
+    prefix_group.bench_function("trie_iter_prefix_top50", |b| {
+        b.iter(|| {
+            for &prefix in &search_prefixes {
+                for entry in trie_map.iter_prefix(black_box(prefix)).take(MAX_RESULTS) {
+                    black_box(entry);
+                }
+            }
+        });
+    });
+
+    prefix_group.finish();
 }
 
 criterion_group!(benches, bench_lookup);
