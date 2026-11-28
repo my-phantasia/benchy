@@ -25,6 +25,8 @@ To ensure consistent results:
 
 ### Exact Lookup
 
+Exact benchmarks were run across **100.000** random sample data from the datasets.
+
 ```sh
 string_lookup/fst      time:   [110.75 ms 111.86 ms 113.03 ms]
                        thrpt:  [884.76 Kelem/s 894.00 Kelem/s 902.91 Kelem/s]
